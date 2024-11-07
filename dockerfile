@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia primero solo los requirements para aprovechar la caché de Docker
 COPY requirements.txt .
 
 # Instala las dependencias de Python
