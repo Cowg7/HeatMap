@@ -1,0 +1,80 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:14
+    container_name: iot_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: arqui123
+      POSTGRES_DB: iot_monitoring
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - iot_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+    container_name: iot_api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - DB_HOST=db
+      - DB_NAME=iot_monitoring
+      - DB_USER=postgres
+      - DB_PASSWORD=arqui123
+    ports:
+      - "8000:8000"
+    networks:
+      - iot_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: kgonzalezb9@miumg.edu.gt
+      PGADMIN_DEFAULT_PASSWORD: sistemas
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - iot_network
+    depends_on:
+      - db
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - iot_network
+    depends_on:
+      - db
+
+networks:
+  iot_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin-data:
+  grafana_data:
