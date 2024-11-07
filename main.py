@@ -11,7 +11,7 @@ app = FastAPI()
 logger = logging.getLogger("uvicorn")
 
 # Configuración del puerto serial
-serial_port = 'COM5'  # Cambia esto al puerto correcto
+serial_port = 'COM5'  
 baud_rate = 115200
 
 # Configuración de la base de datos PostgreSQL desde variables de entorno
@@ -188,7 +188,7 @@ async def get_camera_data():
         logger.error(f"Error fetching camera data: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":  # Nota: corregido de "_main_" a "__main__"
+if __name__ == "__main__":  
     import uvicorn
     from threading import Thread
 
